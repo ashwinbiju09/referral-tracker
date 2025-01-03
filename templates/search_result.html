@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Result</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/">Referral Tracker</a>
+        </div>
+    </nav>
+    <div class="container mt-5">
+
+        {% if referrer %}
+            <h1>Referrer Details</h1>
+            <p><strong>Name:</strong> {{ referrer.name or "Unknown" }}</p>
+            <p><strong>Contact:</strong> {{ referrer.contact or "N/A" }}</p>
+            <p><strong>Referral Code:</strong> {{ referrer.referral_code }}</p>
+            <p><strong>Total References:</strong> {{ referrer.total_references or 0 }}</p>
+
+            <!-- Add Referee Form -->
+            <div class="card mt-4">
+                <div class="card-header">Add Referee</div>
+                <div class="card-body">
+                    <form method="POST" action="/add_referee">
+                        <input type="hidden" name="referral_code" value="{{ referrer.referral_code }}">
+                        <div class="row mb-2">
+                            <div class="col-md-6">
+                                <input type="text" name="name" class="form-control" placeholder="Referee Name" required aria-label="Enter referee's name">
+                            </div>
+                            <div class="col-md-4">
+                                <select name="purchase_count" class="form-select" required aria-label="Select purchase count">
+                                    <option value="1">1st Purchase</option>
+                                    <option value="2">2nd Purchase</option>
+                                    <option value="3">3rd Purchase</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <button type="submit" class="btn btn-success w-100">Add</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- List Referees -->
+            <div class="card mt-4">
+                <div class="card-header">Referees</div>
+                <div class="card-body">
+                    {% if referees and referees|length > 0 %}
+                        <ul class="list-group">
+                            {% for referee in referees %}
+                                <li class="list-group-item">
+                                    <form method="POST" action="/update_referee" class="d-flex align-items-center">
+                                        <div class="flex-grow-1">
+                                            <strong>{{ referee.name or "Unknown" }}</strong> - 
+                                            Last Purchase: {{ referee.date_of_purchase or "N/A" }}
+                                        </div>
+                                        <div class="mx-3">
+                                            <select name="purchase_count" class="form-select" required 
+                                                    {% if referee.purchase_count == 3 %}disabled{% endif %}>
+                                                <option value="1" {% if referee.purchase_count == 1 %}selected{% endif %}>1st Purchase</option>
+                                                <option value="2" {% if referee.purchase_count == 2 %}selected{% endif %}>2nd Purchase</option>
+                                                <option value="3" {% if referee.purchase_count == 3 %}selected{% endif %}>3rd Purchase</option>
+                                            </select>
+                                        </div>
+                                        <input type="hidden" name="referral_code" value="{{ referrer.referral_code }}">
+                                        <input type="hidden" name="name" value="{{ referee.name }}">
+                                        <button type="submit" class="btn btn-primary" 
+                                                {% if referee.purchase_count == 3 %}disabled{% endif %}>
+                                            Update
+                                        </button>
+                                    </form>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <div class="text-center">
+                            <p class="text-muted">No referees found.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+        <a href="/" class="btn btn-secondary mt-4">Go Back</a>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
