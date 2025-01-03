@@ -6,86 +6,67 @@
     <title>Referral Tracker</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body class="bg-light">
+<body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container">
             <a class="navbar-brand" href="/">Referral Tracker</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link text-light" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-light" href="/referrers">View Referrers</a>
+                    </li>
+                </ul>
+            </div>
         </div>
     </nav>
     <div class="container mt-5">
+        <h2 class="text-center">Welcome to Referral Tracker &#128075;</h2>
 
-        <!-- Add Referrer Form -->
-        <div class="card mb-4">
+        <div class="card mt-4">
             <div class="card-header">Add Referrer</div>
             <div class="card-body">
                 <form method="POST" action="/add_referrer">
-                    <div class="row">
+                    <div class="row g-2 align-items-center">
+                        <!-- Name Input -->
                         <div class="col-md-5">
-                            <input type="text" name="name" class="form-control" placeholder="Name" required aria-label="Enter referrer's name">
+                            <input type="text" name="name" class="form-control" placeholder="Name" required>
                         </div>
+        
+                        <!-- Contact Input -->
                         <div class="col-md-5">
-                            <input type="text" name="contact" class="form-control" placeholder="Contact" required aria-label="Enter referrer's contact">
+                            <input type="text" name="contact" class="form-control" placeholder="Contact" required>
                         </div>
-                        <div class="col-md-2">
-                            <button type="submit" class="btn btn-primary w-100">Add</button>
+        
+                        <!-- Submit Button -->
+                        <div class="col-md-2 d-flex justify-content-end">
+                            <button type="submit" class="btn btn-primary w-100">Add Referrer</button>
                         </div>
                     </div>
                 </form>
             </div>
         </div>
 
-        <!-- Search Referral Code -->
-        <div class="card mb-4">
+        <div class="card mt-4">
             <div class="card-header">Search Referral Code</div>
             <div class="card-body">
                 <form method="POST" action="/search_referral">
                     <div class="row">
-                        <div class="col-md-10">
-                            <input type="text" name="referral_code" class="form-control" placeholder="Enter Referral Code" required aria-label="Enter referral code to search">
+                        <div class="col-md-8">
+                            <input type="text" name="referral_code" class="form-control" placeholder="Enter Referral Code" required>
                         </div>
-                        <div class="col-md-2">
+                        <div class="col-md-4">
                             <button type="submit" class="btn btn-info w-100">Search</button>
                         </div>
                     </div>
                 </form>
             </div>
         </div>
-
-        <!-- List Referrers -->
-<!-- List Referrers -->
-<div class="card">
-    <div class="card-header">Referrers</div>
-    <div class="card-body">
-        {% if referrers and referrers|length > 0 %}
-            {% for referrer in referrers %}
-                <h4>{{ referrer.name or "Unknown" }} ({{ referrer.referral_code or "N/A" }})</h4>
-                <p>Contact: {{ referrer.contact or "N/A" }} | Total References: {{ referrer.total_references or 0 }}</p>
-
-                <button class="btn btn-info mb-2" type="button" data-bs-toggle="collapse" data-bs-target="#referees-{{ referrer.referral_code }}">
-                    Show Referees
-                </button>
-                <div id="referees-{{ referrer.referral_code }}" class="collapse">
-                    <ul class="list-group">
-                        {% if referrer.referees and referrer.referees|length > 0 %}
-                            {% for referee in referrer.referees %}
-                                <li class="list-group-item">
-                                    {{ referee.name or "Unknown" }} - Purchases: {{ referee.purchase_count or 0 }}
-                                </li>
-                            {% endfor %}
-                        {% else %}
-                            <li class="list-group-item">No referees found.</li>
-                        {% endif %}
-                    </ul>
-                </div>
-            {% endfor %}
-        {% else %}
-            <div class="text-center">
-                <img src="https://via.placeholder.com/150" alt="No data" class="mb-3">
-                <p class="text-muted">No referrers found.</p>
-            </div>
-        {% endif %}
     </div>
-</div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
