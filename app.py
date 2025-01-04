@@ -39,7 +39,27 @@ def generate_referral_code():
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    cursor = mysql.connection.cursor()
+
+    # Fetch total number of referrers
+    cursor.execute("SELECT COUNT(*) AS total FROM referrers")
+    total_referrers = cursor.fetchone()['total']
+
+    # Fetch total number of successful references (purchase_count = 3)
+    cursor.execute("""
+        SELECT COUNT(*) AS successful_references 
+        FROM referees 
+        WHERE purchase_count = 3
+    """)
+    successful_references = cursor.fetchone()['successful_references']
+
+    cursor.close()
+
+    return render_template(
+        'index.html',
+        total_referrers=total_referrers,
+        successful_references=successful_references
+    )
 
 # Add a referrer
 
