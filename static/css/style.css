@@ -1,0 +1,113 @@
+body{
+  background-color: #FBDA0C;
+}
+
+/* Sidebar & Navbar */
+.sidebar {
+  background: linear-gradient( #1E3A8A, #2563EB); /* Gradient background */           
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  padding-top: 30px;
+  width: 220px;
+  color: white;
+  z-index: 1030; /* Stay above main content */
+}
+.sidebar .nav-link {
+  color: #ffffff;
+  font-weight: bold;
+}
+.sidebar .nav-link:hover {
+  background-color: #001A4F; /* Slightly darker shade on hover */
+}
+.content {
+  margin-left: 250px; /* Adjust content to leave space for the sidebar */
+  padding: 20px;
+}
+.nav-header {
+  letter-spacing: 1px;
+  color: #FBDA0C;
+  font-weight: 900;
+  font-size: 2.5rem; 
+  font-family: 'Roboto', sans-serif; 
+  text-align: center; 
+}
+.nav-sub-header{
+letter-spacing: 2px;
+color: #FBDA0C;
+font-family: 'Roboto', sans-serif; 
+text-align: center;
+text-transform: uppercase;
+font-weight: bold;
+}
+
+
+/* Custom cursor */
+
+/* width */
+::-webkit-scrollbar {
+    width: 10px;
+  }
+  
+  /* Track */
+  ::-webkit-scrollbar-track {
+    background: #f1f1f1; 
+  }
+   
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
+    background: #888; 
+      border-radius: 10px;
+  }
+  
+  /* Handle on hover */
+  ::-webkit-scrollbar-thumb:hover {
+    background: #555; 
+  }
+
+  /* Font Styling */
+
+  .animated-heading {
+    background: linear-gradient(to right, #1E3A8A, #2563EB); /* Navy blue gradient */
+    -webkit-background-clip: text; /* Clip background to text */
+    background-clip: text;
+    -webkit-text-fill-color: transparent; /* Make text transparent to show gradient */
+    -webkit-text-fill-color: transparent; /* Make text transparent */
+    background-size: 500% auto; /* Animate background gradient */
+    animation: textShine 5s ease-in-out infinite alternate; /* Animation effect */
+    font-weight: 900; /* Bold for emphasis */
+    font-size: 2.5rem; /* Adjust font size */
+    letter-spacing: 1px;
+    font-family: 'Roboto', sans-serif; 
+}
+
+/* Animation keyframes */
+@keyframes textShine {
+    0% {
+        background-position: 0% center; /* Start of gradient */
+    }
+    100% {
+        background-position: 100% center; /* End of gradient */
+    }
+}
+
+.search-container {
+  position: relative;
+}
+
+.search-input {
+  height: 50px;
+  border-radius: 30px;
+  padding-left: 35px;
+  border: none;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.search-icon {
+  position: absolute;
+  top: 50%;
+  left: 15px;
+  transform: translateY(-50%);
+  color: #888;
+}

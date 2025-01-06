@@ -4,28 +4,48 @@
 
 {% block content %}
 
-<div class="pt-5">
+<div class="text-center mt-2 mb-4">
+    <h2 class="animated-heading">Dashboard</h2>
+</div>
+
+
 
 <!-- Stats Section -->
 <div class="row mb-4">
-    <div class="col-md-6">
-        <div class="card shadow border-0">
+    <!-- Total Referrers -->
+    <div class="col-md-4">
+        <div class="card shadow border-0" style="background: linear-gradient(to bottom right, #1E3A8A, #2563EB);">
             <div class="card-body d-flex align-items-center">
-                <i class="fas fa-users fa-3x text-primary me-3"></i> <!-- Icon -->
+                <i class="fas fa-users fa-3x me-3" style="color: #FBDA0C;"></i> <!-- Icon -->
                 <div>
-                    <h5 class="card-title fw-bold mb-1" style="color: #00246B;">Total Referrers</h5> <!-- Title -->
-                    <p class="card-text fs-3 fw-bold text-primary mb-0">{{ total_referrers }}</p> <!-- Value -->
+                    <h5 class="card-title fw-bold mb-1" style="color: #FBDA0C;">Total Referrers</h5> <!-- Title -->
+                    <p class="card-text fs-3 fw-bold mb-0" style="color: #FBDA0C;">{{ total_referrers }}</p> <!-- Value -->
                 </div>
             </div>
         </div>
     </div>
-    <div class="col-md-6">
-        <div class="card shadow border-0">
+
+    <!-- Successful References -->
+    <div class="col-md-4">
+        <div class="card shadow border-0" style="background: linear-gradient(to bottom right, #1E3A8A, #2563EB);">
             <div class="card-body d-flex align-items-center">
-                <i class="fas fa-check-circle fa-3x text-success me-3"></i> <!-- Icon -->
+                <i class="fas fa-check-circle fa-3x me-3" style="color: #FBDA0C;"></i> <!-- Icon -->
                 <div>
-                    <h5 class="card-title fw-bold mb-1" style="color: #00246B;">Successful References</h5> <!-- Title -->
-                    <p class="card-text fs-3 fw-bold text-success mb-0">{{ successful_references }}</p> <!-- Value -->
+                    <h5 class="card-title fw-bold mb-1" style="color: #FBDA0C;">Successful References</h5> <!-- Title -->
+                    <p class="card-text fs-3 fw-bold mb-0" style="color: #FBDA0C;">{{ successful_references }}</p> <!-- Value -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Total References -->
+    <div class="col-md-4">
+        <div class="card shadow border-0" style="background: linear-gradient(to bottom right, #1E3A8A, #2563EB);">
+            <div class="card-body d-flex align-items-center">
+                <i class="fas fa-link fa-3x me-3" style="color: #FBDA0C;"></i> <!-- Icon -->
+                <div>
+                    <h5 class="card-title fw-bold mb-1" style="color: #FBDA0C;">Total References</h5> <!-- Title -->
+                    <p class="card-text fs-3 fw-bold mb-0" style="color: #FBDA0C;">{{ total_references }}</p> <!-- Value -->
                 </div>
             </div>
         </div>
@@ -38,10 +58,13 @@
     <div class="card-body">
         <form method="POST" action="/add_referrer">
             <div class="row g-2 align-items-center">
-                <div class="col-md-5">
-                    <input type="text" name="name" class="form-control shadow-sm" placeholder="Name" required>
+                <div class="col-md-3">
+                    <input type="text" name="first_name" class="form-control shadow-sm" placeholder="First Name" required>
                 </div>
-                <div class="col-md-5">
+                <div class="col-md-3">
+                    <input type="text" name="last_name" class="form-control shadow-sm" placeholder="Last Name" required>
+                </div>
+                <div class="col-md-4">
                     <input type="text" name="contact" class="form-control shadow-sm" placeholder="Contact" required>
                 </div>
                 <div class="col-md-2">

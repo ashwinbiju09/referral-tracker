@@ -5,6 +5,7 @@ import os
 import random
 import string
 from math import ceil
+from datetime import datetime
 
 # Load environment variables
 load_dotenv()
@@ -53,12 +54,20 @@ def index():
     """)
     successful_references = cursor.fetchone()['successful_references']
 
+    # Fetch total references (counting unique referees)
+    cursor.execute("""
+        SELECT COUNT(*) AS total_references 
+        FROM referees
+    """)
+    total_references = cursor.fetchone()['total_references'] or 0
+
     cursor.close()
 
     return render_template(
         'index.html',
         total_referrers=total_referrers,
-        successful_references=successful_references
+        successful_references=successful_references,
+        total_references=total_references
     )
 
 # Add a referrer
@@ -66,14 +75,15 @@ def index():
 
 @app.route('/add_referrer', methods=['POST'])
 def add_referrer():
-    name = request.form.get('name')
+    first_name = request.form.get('first_name')
+    last_name = request.form.get('last_name')
     contact = request.form.get('contact')
     referral_code = generate_referral_code()
 
     cursor = mysql.connection.cursor()
     cursor.execute(
-        "INSERT INTO referrers (name, contact, referral_code, total_references) VALUES (%s, %s, %s, 0)",
-        (name, contact, referral_code)
+        "INSERT INTO referrers (first_name, last_name, contact, referral_code, total_references) VALUES (%s, %s, %s, %s, 0)",
+        (first_name, last_name, contact, referral_code)
     )
     mysql.connection.commit()
     cursor.close()
@@ -91,7 +101,7 @@ def view_referrers():
     cursor = mysql.connection.cursor()
     # Fetch referrers with dynamically calculated total_references
     cursor.execute("""
-        SELECT r.id, r.name, r.contact, r.referral_code, 
+        SELECT r.id, r.first_name, r.last_name, r.contact, r.referral_code, 
                (SELECT COUNT(*) FROM referees WHERE referees.referrer_id = r.id) AS total_references
         FROM referrers r
         LIMIT %s OFFSET %s
@@ -139,25 +149,39 @@ def search_referral():
 
     # Fetch the referrer
     cursor.execute(
-        "SELECT * FROM referrers WHERE referral_code = %s", (referral_code,))
+        "SELECT * FROM referrers WHERE referral_code = %s", (referral_code,)
+    )
     referrer = cursor.fetchone()
 
     if referrer:
         # Dynamically calculate the total references
         cursor.execute(
-            "SELECT COUNT(*) AS total_references FROM referees WHERE referrer_id = %s", (referrer['id'],))
+            "SELECT COUNT(*) AS total_references FROM referees WHERE referrer_id = %s", (
+                referrer['id'],)
+        )
         total_references = cursor.fetchone()['total_references']
         referrer['total_references'] = total_references
 
+        # Calculate successful references (referees with 3 purchases)
+        cursor.execute(
+            "SELECT COUNT(*) AS successful_references FROM referees WHERE referrer_id = %s AND purchase_count = 3",
+            (referrer['id'],)
+        )
+        successful_references = cursor.fetchone()['successful_references']
+        referrer['successful_references'] = successful_references
+
         # Fetch referees for this referrer
         cursor.execute(
-            "SELECT * FROM referees WHERE referrer_id = %s", (referrer['id'],))
+            "SELECT * FROM referees WHERE referrer_id = %s", (referrer['id'],)
+        )
         referees = cursor.fetchall()
+
         cursor.close()
         return render_template('search_result.html', referrer=referrer, referees=referees)
     else:
         cursor.close()
         return redirect('/')
+
 
 # Add a referee
 
@@ -165,39 +189,70 @@ def search_referral():
 @app.route('/add_referee', methods=['POST'])
 def add_referee():
     referral_code = request.form.get('referral_code').upper()
-    name = request.form.get('name')
+    first_name = request.form.get('first_name')
+    last_name = request.form.get('last_name')
     purchase_count = int(request.form.get('purchase_count'))
+    date_of_purchase = datetime.now()
 
     cursor = mysql.connection.cursor()
     cursor.execute(
-        "SELECT * FROM referrers WHERE referral_code = %s", (referral_code,))
+        "SELECT * FROM referrers WHERE referral_code = %s", (referral_code,)
+    )
     referrer = cursor.fetchone()
 
     if referrer:
         referrer_id = referrer['id']
 
+        # Check if the referee already exists
         cursor.execute(
-            "SELECT * FROM referees WHERE referrer_id = %s AND name = %s", (
-                referrer_id, name)
+            "SELECT * FROM referees WHERE referrer_id = %s AND first_name = %s AND last_name = %s",
+            (referrer_id, first_name, last_name)
         )
         referee = cursor.fetchone()
 
         if referee:
+            # Check if the purchase_count transitions to 3
+            if purchase_count == 3 and referee['purchase_count'] < 3:
+                cursor.execute(
+                    "UPDATE referrers SET total_references = total_references + 1 WHERE id = %s",
+                    (referrer_id,)
+                )
+
+            # Update referee purchase_count and date_of_purchase
             cursor.execute(
-                "UPDATE referees SET purchase_count = %s WHERE id = %s", (
-                    purchase_count, referee['id'])
+                """
+                UPDATE referees 
+                SET purchase_count = %s, date_of_purchase = %s 
+                WHERE id = %s
+                """,
+                (purchase_count, date_of_purchase, referee['id'])
             )
         else:
+            # Insert a new referee and check if purchase_count is already 3
             cursor.execute(
-                "INSERT INTO referees (referrer_id, name, purchase_count) VALUES (%s, %s, %s)",
-                (referrer_id, name, purchase_count)
+                """
+                INSERT INTO referees (referrer_id, first_name, last_name, purchase_count, date_of_purchase) 
+                VALUES (%s, %s, %s, %s, %s)
+                """,
+                (referrer_id, first_name, last_name,
+                 purchase_count, date_of_purchase)
             )
+            if purchase_count == 3:
+                cursor.execute(
+                    "UPDATE referrers SET total_references = total_references + 1 WHERE id = %s",
+                    (referrer_id,)
+                )
         mysql.connection.commit()
+    else:
+        print("Referrer not found.")
+        cursor.close()
+        return "Referrer not found. Please check the referral code.", 404
+
     cursor.close()
     return redirect(url_for('search_referral', referral_code=referral_code))
 
-
 # Delete a referee
+
 
 @app.route('/delete_referee/<int:referee_id>', methods=['POST'])
 def delete_referee(referee_id):
@@ -206,6 +261,54 @@ def delete_referee(referee_id):
     mysql.connection.commit()
     cursor.close()
     return redirect(request.referrer)
+
+
+@app.route('/update_referee', methods=['POST'])
+def update_referee():
+    referral_code = request.form.get('referral_code')
+    first_name = request.form.get('first_name')
+    last_name = request.form.get('last_name')
+    purchase_count = int(request.form.get('purchase_count'))
+    date_of_purchase = datetime.now()
+
+    cursor = mysql.connection.cursor()
+
+    # Fetch the referrer
+    cursor.execute(
+        "SELECT id FROM referrers WHERE referral_code = %s", (referral_code,))
+    referrer = cursor.fetchone()
+
+    if referrer:
+        referrer_id = referrer['id']
+
+        # Fetch the referee
+        cursor.execute(
+            "SELECT * FROM referees WHERE referrer_id = %s AND first_name = %s AND last_name = %s",
+            (referrer_id, first_name, last_name)
+        )
+        referee = cursor.fetchone()
+
+        if referee:
+            # Increment total_references only if updating to 3
+            if purchase_count == 3 and referee['purchase_count'] < 3:
+                cursor.execute(
+                    "UPDATE referrers SET total_references = total_references + 1 WHERE id = %s",
+                    (referrer_id,)
+                )
+
+            # Update referee purchase_count and date_of_purchase
+            cursor.execute(
+                """
+                UPDATE referees 
+                SET purchase_count = %s, date_of_purchase = %s 
+                WHERE id = %s
+                """,
+                (purchase_count, date_of_purchase, referee['id'])
+            )
+            mysql.connection.commit()
+
+    cursor.close()
+    return redirect(url_for('search_referral', referral_code=referral_code))
 
 
 if __name__ == '__main__':

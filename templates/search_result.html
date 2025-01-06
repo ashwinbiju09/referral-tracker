@@ -3,14 +3,17 @@
 {% block title %}Referrer Details{% endblock %}
 
 {% block content %}
-<h2 class="text-center fw-bold mb-4">Referrer Details</h2>
+<div class="text-center mt-2 mb-4">
+    <h2 class="animated-heading">Referrer Details</h2>
+</div>
 
-<div class="card mb-4">
+<div class="card mb-4 shadow border-0" style="background: linear-gradient(to bottom right, #1E3A8A, #2563EB); color: #FBDA0C;">
     <div class="card-body d-flex justify-content-between align-items-center">
-        <p class="mb-0"><strong>Name:</strong> {{ referrer.name }}</p>
-        <p class="mb-0"><strong>Contact:</strong> {{ referrer.contact }}</p>
-        <p class="mb-0"><strong>Referral Code:</strong> {{ referrer.referral_code }}</p>
-        <p class="mb-0"><strong>Total References:</strong> {{ referrer.total_references or 0 }}</p>
+        <p class="mb-0">Name: <strong>{{ referrer.first_name }} {{ referrer.last_name }}</strong></p>
+        <p class="mb-0">Contact: <strong>{{ referrer.contact }}</strong></p>
+        <p class="mb-0">Referral Code: <strong>{{ referrer.referral_code }}</strong></p>
+        <p class="mb-0">Total References: <strong>{{ referrer.total_references or 0 }}</strong></p>
+        <p class="mb-0">Successful References: <strong>{{ referrer.successful_references or 0 }}</strong></p>
     </div>
 </div>
 
@@ -19,9 +22,13 @@
     <div class="card-header text-white" style="background: linear-gradient(to bottom right, #1E3A8A, #2563EB);">Add Referee</div>
     <div class="card-body">
         <form method="POST" action="/add_referee">
+            <input type="hidden" name="referral_code" value="{{ referrer.referral_code }}">
             <div class="row g-2">
-                <div class="col-md-6">
-                    <input type="text" name="name" class="form-control shadow-sm" placeholder="Referee Name" required>
+                <div class="col-md-3">
+                    <input type="text" name="first_name" class="form-control shadow-sm" placeholder="First Name" required>
+                </div>
+                <div class="col-md-3">
+                    <input type="text" name="last_name" class="form-control shadow-sm" placeholder="Last Name" required>
                 </div>
                 <div class="col-md-4">
                     <select name="purchase_count" class="form-select shadow-sm" required>
@@ -43,23 +50,32 @@
     <div class="card-header text-white" style="background: linear-gradient(to bottom right, #1E3A8A, #2563EB);">Referees</div>
     <div class="card-body">
         {% if referees and referees|length > 0 %}
-            <div class="input-group mb-3">
-                <input type="text" id="search-bar" class="form-control shadow-sm" placeholder="Search referees by name or purchase count">
+        <div class="d-flex justify-content-center mb-4">
+            <div class="input-group" style="width: 500px; border-radius: 50px; box-shadow: 0px 1px 6px rgba(32, 33, 36, 0.28);">
+                <input type="text" id="search-bar" 
+                       class="form-control shadow-none border-0" 
+                       placeholder="Search by name or contact" 
+                       style="border-radius: 50px; padding: 12px 20px; font-size: 16px;">
+                <button class="btn btn-search" style="border-radius: 50px; color: #1E3A8A; border: none; padding: 10px 20px; margin-left: -50px; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-search"></i>
+                </button>
             </div>
+        </div>
             <ul class="list-group" id="referees-list">
                 {% for referee in referees %}
                     <li class="list-group-item referee-item">
                         <div class="d-flex justify-content-between align-items-center">
                             <!-- Referee Details -->
                             <div>
-                                <strong>{{ referee.name }}</strong>
+                                <strong>{{ referee.first_name }} {{ referee.last_name }}</strong>
                                 <span>- Last Purchase: {{ referee.date_of_purchase or "N/A" }}</span>
                             </div>
                             <!-- Actions -->
                             <div class="d-flex align-items-center gap-2">
                                 <form method="POST" action="/update_referee" class="d-flex align-items-center gap-2">
                                     <input type="hidden" name="referral_code" value="{{ referrer.referral_code }}">
-                                    <input type="hidden" name="name" value="{{ referee.name }}">
+                                    <input type="hidden" name="first_name" value="{{ referee.first_name }}">
+                                    <input type="hidden" name="last_name" value="{{ referee.last_name }}">
                                     <select name="purchase_count" class="form-select form-select-sm shadow-sm w-auto" required
                                             {% if referee.purchase_count == 3 %}disabled{% endif %}>
                                         <option value="1" {% if referee.purchase_count == 1 %}selected{% endif %}>1</option>
@@ -86,6 +102,7 @@
         {% endif %}
     </div>
 </div>
+
 
 <!-- Search Script -->
 <script>
