@@ -35,6 +35,18 @@ def generate_referral_code():
         if not cursor.fetchone():
             return code
 
+# Function to generate Member ID
+
+
+def generate_member_id():
+    while True:
+        member_id = 'NVO' + ''.join(random.choices(string.digits, k=6))
+        cursor = mysql.connection.cursor()
+        cursor.execute(
+            "SELECT 1 FROM members WHERE member_id = %s", (member_id,))
+        if not cursor.fetchone():
+            return member_id
+
 # Home page
 
 
@@ -61,13 +73,21 @@ def index():
     """)
     total_references = cursor.fetchone()['total_references'] or 0
 
+    # Fetch total members count
+    cursor.execute("""
+        SELECT COUNT(*) AS total_members
+        FROM members
+    """)
+    total_members = cursor.fetchone()['total_members'] or 0
+
     cursor.close()
 
     return render_template(
         'index.html',
         total_referrers=total_referrers,
         successful_references=successful_references,
-        total_references=total_references
+        total_references=total_references,
+        total_members=total_members  # Pass total_members to the template
     )
 
 # Add a referrer
@@ -88,13 +108,6 @@ def add_referrer():
     mysql.connection.commit()
     cursor.close()
     return redirect(url_for('index'))
-
-# View all Members
-
-
-@app.route("/members")
-def view_members():
-    return render_template('members.html')
 
 # View Settings
 
@@ -323,6 +336,71 @@ def update_referee():
 
     cursor.close()
     return redirect(url_for('search_referral', referral_code=referral_code))
+
+# Route to display members
+
+
+@app.route('/members')
+def view_members():
+    page = request.args.get('page', 1, type=int)
+    per_page = 10
+    offset = (page - 1) * per_page
+
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT * FROM members LIMIT %s OFFSET %s",
+                   (per_page, offset))
+    members = cursor.fetchall()
+
+    cursor.execute("SELECT COUNT(*) AS total FROM members")
+    total = cursor.fetchone()['total']
+    total_pages = ceil(total / per_page)
+
+    cursor.close()
+    return render_template('members.html', members=members, page=page, total_pages=total_pages)
+
+
+# Route to add a member
+@app.route('/add_member', methods=['POST'])
+def add_member():
+    first_name = request.form.get('first_name')
+    last_name = request.form.get('last_name')
+    contact = request.form.get('contact')
+    member_id = generate_member_id()
+
+    cursor = mysql.connection.cursor()
+    cursor.execute(
+        "INSERT INTO members (member_id, first_name, last_name, contact, total_purchase_amount) VALUES (%s, %s, %s, %s, 0.00)",
+        (member_id, first_name, last_name, contact)
+    )
+    mysql.connection.commit()
+    cursor.close()
+    return redirect(url_for('view_members'))
+
+
+# Route to delete a member
+@app.route('/delete_member/<int:member_id>', methods=['POST'])
+def delete_member(member_id):
+    cursor = mysql.connection.cursor()
+    cursor.execute("DELETE FROM members WHERE id = %s", (member_id,))
+    mysql.connection.commit()
+    cursor.close()
+    return redirect(url_for('view_members'))
+
+
+@app.route('/update_member/<int:member_id>', methods=['POST'])
+def update_member(member_id):
+    purchase_amount = float(request.form.get('purchase_amount'))
+
+    cursor = mysql.connection.cursor()
+    cursor.execute("""
+        UPDATE members
+        SET total_purchase_amount = total_purchase_amount + %s
+        WHERE id = %s
+    """, (purchase_amount, member_id))
+    mysql.connection.commit()
+    cursor.close()
+
+    return redirect(url_for('view_members'))
 
 
 if __name__ == '__main__':
