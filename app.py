@@ -89,6 +89,20 @@ def add_referrer():
     cursor.close()
     return redirect(url_for('index'))
 
+# View all Members
+
+
+@app.route("/members")
+def view_members():
+    return render_template('members.html')
+
+# View Settings
+
+
+@app.route("/settings")
+def view_settings():
+    return render_template("settings.html")
+
 # View all referrers
 
 

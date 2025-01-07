@@ -22,7 +22,7 @@ body{
   background-color: #001A4F; /* Slightly darker shade on hover */
 }
 .content {
-  margin-left: 250px; /* Adjust content to leave space for the sidebar */
+  margin-left: 230px; /* Adjust content to leave space for the sidebar */
   padding: 20px;
 }
 .nav-header {
@@ -41,6 +41,12 @@ text-align: center;
 text-transform: uppercase;
 font-weight: bold;
 }
+
+.nav-link.text-danger {
+  font-weight: bold;
+  transition: color 0.3s ease;
+}
+
 
 
 /* Custom cursor */
