@@ -9,36 +9,44 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <!-- Side Navbar -->
-    <div class="sidebar">
-        <div class="text-center mb-4">
-            <h1 class="nav-header">
-                Newark
-            </h1>
-            <p class="nav-sub-header">Vape outlet</p>
-        </div>
-        <ul class="nav flex-column">
-            <li class="nav-item">
-                <a class="nav-link" href="/">Dashboard</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/referrers">View Referrers</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/members">Membership</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/settings">Settings</a>
-            </li>
-        </ul>
-        <ul class="nav flex-column mb-3">
-            <li class="nav-item">
-                <a class="nav-link text-danger" href="/logout">
-                    <i class="fas fa-sign-out-alt me-2"></i>Logout
-                </a>
-            </li>
-        </ul>
+<!-- Side Navbar -->
+<div class="sidebar">
+    <div class="text-center mb-4">
+        <h1 class="nav-header">
+            Newark
+        </h1>
+        <p class="nav-sub-header">Vape Outlet</p>
     </div>
+    <ul class="nav flex-column">
+        <li class="nav-item">
+            <a class="nav-link" href="/">
+                <i class="fas fa-home me-2"></i> Dashboard
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="/referrers">
+                <i class="fas fa-users me-2"></i> View Referrers
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="/members">
+                <i class="fas fa-user-friends me-2"></i> Membership
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="/settings">
+                <i class="fas fa-cogs me-2"></i> Settings
+            </a>
+        </li>
+    </ul>
+    <ul class="nav flex-column mb-3">
+        <li class="nav-item">
+            <a class="nav-link text-danger" href="/logout">
+                <i class="fas fa-sign-out-alt me-2"></i> Logout
+            </a>
+        </li>
+    </ul>
+</div>
 
     <!-- Main Content -->
     <div class="content">
