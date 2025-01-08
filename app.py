@@ -1,17 +1,20 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, session, flash
 from flask_mysqldb import MySQL
 from dotenv import load_dotenv
 import os
 import random
 import string
+import bcrypt
 from math import ceil
 from datetime import datetime
+from functools import wraps
 
 # Load environment variables
 load_dotenv()
 
 # Initialize Flask app
 app = Flask(__name__)
+app.secret_key = os.getenv('SECRET_KEY')
 
 # MySQL configuration
 app.config['MYSQL_HOST'] = os.getenv('MYSQL_HOST')
@@ -21,6 +24,9 @@ app.config['MYSQL_DB'] = os.getenv('MYSQL_DB')
 app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 
 mysql = MySQL(app)
+
+ADMIN_USERNAME = os.getenv('ADMIN_USERNAME')
+ADMIN_PASSWORD = os.getenv('ADMIN_PASSWORD')
 
 # Generate random referral code
 
@@ -47,10 +53,49 @@ def generate_member_id():
         if not cursor.fetchone():
             return member_id
 
+# Decorator to enforce login
+
+
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user' not in session:
+            flash('Please log in to access this page.', 'danger')
+            return redirect(url_for('login'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+# Login route
+
+
+@app.route("/", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        username = request.form.get("username")
+        password = request.form.get("password")
+
+        if username == ADMIN_USERNAME and bcrypt.checkpw(password.encode('utf-8'), ADMIN_PASSWORD.encode('utf-8')):
+            session['user'] = username
+            flash('Login successful!', 'success')
+            return redirect(url_for("index"))
+        else:
+            flash("Invalid username or password", "danger")
+    return render_template("login.html")
+
+# Logout route
+
+
+@app.route("/logout")
+def logout():
+    session.pop('user', None)
+    flash('You have been logged out.', 'success')
+    return redirect(url_for('login'))
+
 # Home page
 
 
-@app.route('/')
+@app.route('/home')
+@login_required
 def index():
     cursor = mysql.connection.cursor()
 
@@ -90,10 +135,12 @@ def index():
         total_members=total_members  # Pass total_members to the template
     )
 
+
 # Add a referrer
 
 
 @app.route('/add_referrer', methods=['POST'])
+@login_required
 def add_referrer():
     first_name = request.form.get('first_name')
     last_name = request.form.get('last_name')
@@ -109,17 +156,11 @@ def add_referrer():
     cursor.close()
     return redirect(url_for('index'))
 
-# View Settings
-
-
-@app.route("/settings")
-def view_settings():
-    return render_template("settings.html")
-
 # View all referrers
 
 
 @app.route('/referrers')
+@login_required
 def view_referrers():
     page = request.args.get('page', 1, type=int)
     per_page = 10
@@ -147,6 +188,7 @@ def view_referrers():
 
 
 @app.route('/delete_referrer/<int:referrer_id>', methods=['POST'])
+@login_required
 def delete_referrer(referrer_id):
     cursor = mysql.connection.cursor()
 
@@ -166,6 +208,7 @@ def delete_referrer(referrer_id):
 
 
 @app.route('/search_referral', methods=['GET', 'POST'])
+@login_required
 def search_referral():
     if request.method == 'POST':
         referral_code = request.form.get('referral_code').upper()
@@ -214,6 +257,7 @@ def search_referral():
 
 
 @app.route('/add_referee', methods=['POST'])
+@login_required
 def add_referee():
     referral_code = request.form.get('referral_code').upper()
     first_name = request.form.get('first_name')
@@ -282,6 +326,7 @@ def add_referee():
 
 
 @app.route('/delete_referee/<int:referee_id>', methods=['POST'])
+@login_required
 def delete_referee(referee_id):
     cursor = mysql.connection.cursor()
     cursor.execute("DELETE FROM referees WHERE id = %s", (referee_id,))
@@ -291,6 +336,7 @@ def delete_referee(referee_id):
 
 
 @app.route('/update_referee', methods=['POST'])
+@login_required
 def update_referee():
     referral_code = request.form.get('referral_code')
     first_name = request.form.get('first_name')
@@ -341,6 +387,7 @@ def update_referee():
 
 
 @app.route('/members')
+@login_required
 def view_members():
     page = request.args.get('page', 1, type=int)
     per_page = 10
@@ -361,6 +408,7 @@ def view_members():
 
 # Route to add a member
 @app.route('/add_member', methods=['POST'])
+@login_required
 def add_member():
     first_name = request.form.get('first_name')
     last_name = request.form.get('last_name')
@@ -379,6 +427,7 @@ def add_member():
 
 # Route to delete a member
 @app.route('/delete_member/<int:member_id>', methods=['POST'])
+@login_required
 def delete_member(member_id):
     cursor = mysql.connection.cursor()
     cursor.execute("DELETE FROM members WHERE id = %s", (member_id,))
@@ -388,6 +437,7 @@ def delete_member(member_id):
 
 
 @app.route('/update_member/<int:member_id>', methods=['POST'])
+@login_required
 def update_member(member_id):
     purchase_amount = float(request.form.get('purchase_amount'))
 

@@ -8,12 +8,39 @@
 </div>
 
 <div class="card mb-4 shadow border-0" style="background: linear-gradient(to bottom right, #1E3A8A, #2563EB); color: #FBDA0C;">
-    <div class="card-body d-flex justify-content-between align-items-center">
-        <p class="mb-0">Name: <strong>{{ referrer.first_name }} {{ referrer.last_name }}</strong></p>
-        <p class="mb-0">Contact: <strong>{{ referrer.contact }}</strong></p>
-        <p class="mb-0">Referral Code: <strong>{{ referrer.referral_code }}</strong></p>
-        <p class="mb-0">Total References: <strong>{{ referrer.total_references or 0 }}</strong></p>
-        <p class="mb-0">Successful References: <strong>{{ referrer.successful_references or 0 }}</strong></p>
+    <div class="card-body">
+        <div class="row text-center text-md-start ">
+            <!-- Name -->
+            <div class="col-lg-12 d-lg-flex justify-content-between align-items-center mb-2 d-md-none">
+                <p class="mb-0">Name: <strong>{{ referrer.first_name }} {{ referrer.last_name }}</strong></p>
+                <p class="mb-0">Contact: <strong>{{ referrer.contact }}</strong></p>
+                <p class="mb-0">Referral Code: <strong>{{ referrer.referral_code }}</strong></p>
+                <p class="mb-0">Total References: <strong>{{ referrer.total_references or 0 }}</strong></p>
+                <p class="mb-0">Successful References: <strong>{{ referrer.successful_references or 0 }}</strong></p>
+            </div>
+
+            <!-- Responsive Design for md and below -->
+            <!-- Name and Contact -->
+            <div class="col-md-6 mb-2 d-lg-none">
+                <p class="mb-0">Name: <strong>{{ referrer.first_name }} {{ referrer.last_name }}</strong></p>
+            </div>
+            <div class="col-md-6 mb-2 d-lg-none">
+                <p class="mb-0">Contact: <strong>{{ referrer.contact }}</strong></p>
+            </div>
+
+            <!-- Referral Code and Total References -->
+            <div class="col-md-6 mb-2 d-lg-none">
+                <p class="mb-0">Referral Code: <strong>{{ referrer.referral_code }}</strong></p>
+            </div>
+            <div class="col-md-6 mb-2 d-lg-none">
+                <p class="mb-0">Total References: <strong>{{ referrer.total_references or 0 }}</strong></p>
+            </div>
+
+            <!-- Successful References (Centered for md and below) -->
+            <div class="col-md-12 mb-2 d-lg-none">
+                <p class="mb-0">Successful References: <strong>{{ referrer.successful_references or 0 }}</strong></p>
+            </div>
+        </div>
     </div>
 </div>
 
