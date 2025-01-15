@@ -103,11 +103,11 @@ def index():
     cursor.execute("SELECT COUNT(*) AS total FROM referrers")
     total_referrers = cursor.fetchone()['total']
 
-    # Fetch total number of successful references (purchase_count = 3)
+    # Fetch total number of successful references (purchase_count = 2)
     cursor.execute("""
         SELECT COUNT(*) AS successful_references 
         FROM referees 
-        WHERE purchase_count = 3
+        WHERE purchase_count = 2
     """)
     successful_references = cursor.fetchone()['successful_references']
 
@@ -232,9 +232,9 @@ def search_referral():
         total_references = cursor.fetchone()['total_references']
         referrer['total_references'] = total_references
 
-        # Calculate successful references (referees with 3 purchases)
+        # Calculate successful references (referees with 2 purchases)
         cursor.execute(
-            "SELECT COUNT(*) AS successful_references FROM referees WHERE referrer_id = %s AND purchase_count = 3",
+            "SELECT COUNT(*) AS successful_references FROM referees WHERE referrer_id = %s AND purchase_count = 2",
             (referrer['id'],)
         )
         successful_references = cursor.fetchone()['successful_references']
@@ -283,7 +283,7 @@ def add_referee():
 
         if referee:
             # Check if the purchase_count transitions to 3
-            if purchase_count == 3 and referee['purchase_count'] < 3:
+            if purchase_count == 2 and referee['purchase_count'] < 2:
                 cursor.execute(
                     "UPDATE referrers SET total_references = total_references + 1 WHERE id = %s",
                     (referrer_id,)
@@ -308,7 +308,7 @@ def add_referee():
                 (referrer_id, first_name, last_name,
                  purchase_count, date_of_purchase)
             )
-            if purchase_count == 3:
+            if purchase_count == 2:
                 cursor.execute(
                     "UPDATE referrers SET total_references = total_references + 1 WHERE id = %s",
                     (referrer_id,)

@@ -61,7 +61,6 @@
                     <select name="purchase_count" class="form-select shadow-sm" required>
                         <option value="1">1st Purchase</option>
                         <option value="2">2nd Purchase</option>
-                        <option value="3">3rd Purchase</option>
                     </select>
                 </div>
                 <div class="col-md-2">
@@ -104,13 +103,12 @@
                                     <input type="hidden" name="first_name" value="{{ referee.first_name }}">
                                     <input type="hidden" name="last_name" value="{{ referee.last_name }}">
                                     <select name="purchase_count" class="form-select form-select-sm shadow-sm w-auto" required
-                                            {% if referee.purchase_count == 3 %}disabled{% endif %}>
+                                            {% if referee.purchase_count == 2 %}disabled{% endif %}>
                                         <option value="1" {% if referee.purchase_count == 1 %}selected{% endif %}>1</option>
                                         <option value="2" {% if referee.purchase_count == 2 %}selected{% endif %}>2</option>
-                                        <option value="3" {% if referee.purchase_count == 3 %}selected{% endif %}>3</option>
                                     </select>
                                     <button type="submit" class="btn btn-primary btn-sm shadow-sm" 
-                                            {% if referee.purchase_count == 3 %}disabled{% endif %}>
+                                            {% if referee.purchase_count == 2 %}disabled{% endif %}>
                                         Update
                                     </button>
                                 </form>
